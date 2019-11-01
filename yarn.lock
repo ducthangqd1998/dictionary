@@ -2978,6 +2978,13 @@ has@^1.0.1, has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
+hasharray@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/hasharray/-/hasharray-1.1.1.tgz#0bfadd91c0ee76919c05eeef5a3dc1034b4ea4f1"
+  integrity sha512-L+WTUz5XcfQyh3652tOEDLL5ZG6MAS+iYqM2K0N9H/z7RpW0rjlFkXLRdqbwqrGCr9korJzyfDD7i7mtwo42wg==
+  dependencies:
+    jclass "^1.0.1"
+
 hermes-engine@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/hermes-engine/-/hermes-engine-0.2.1.tgz#25c0f1ff852512a92cb5c5cc47cf967e1e722ea2"
@@ -3415,6 +3422,11 @@ istanbul-reports@^2.2.6:
   integrity sha512-SKi4rnMyLBKe0Jy2uUdx28h8oG7ph2PPuQPvIAh31d+Ci+lSiEu4C+h3oBPuJ9+mPKhOyW0M8gY4U5NM1WLeXA==
   dependencies:
     handlebars "^4.1.2"
+
+jclass@^1.0.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/jclass/-/jclass-1.2.1.tgz#eaafeec0dd6a5bf8b3ea43c04e010c637638768b"
+  integrity sha1-6q/uwN1qW/iz6kPATgEMY3Y4dos=
 
 jest-changed-files@^24.9.0:
   version "24.9.0"
@@ -6263,6 +6275,13 @@ tr46@^1.0.1:
   integrity sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=
   dependencies:
     punycode "^2.1.0"
+
+trie-search@^1.2.11:
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/trie-search/-/trie-search-1.2.11.tgz#0edb1c3593bf4a5943686cb65c8589f4545c181c"
+  integrity sha512-iENSdED6uNFRkJg4c/WOpBDlM/Qk5ovihK98cCEhH8vh5eorldycLgPxgaeO+JBBslbq6pHMDSdP2fuLv9VZzA==
+  dependencies:
+    hasharray "^1.1.1"
 
 tslib@^1.8.1, tslib@^1.9.0:
   version "1.10.0"

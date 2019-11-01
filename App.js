@@ -6,6 +6,8 @@ import SideBar from './src/component/SideBar';
 import {Image} from 'react-native';
 import HomeScreen from './src/screen/HomeScreen';
 import VocabularyScreen from './src/screen/VocabularyScreen';
+import FavoritesScreen from './src/screen/FavoritesScreen';
+import VietNameseEngLishScreen from './src/screen/VietnameseEngLishScreen';
 import {
   VietnameseEngLish,
   Screen3,
@@ -29,6 +31,35 @@ const AVNavigator = createStackNavigator(
   },
   {headerLayoutPreset: 'center'},
 );
+
+const VANavigator = createStackNavigator(
+  {
+    VietNameseEngLishScreen: {
+      screen: VietNameseEngLishScreen,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    Vocabulary: {
+      screen: VocabularyScreen,
+      navigationOptions: {},
+    },
+  },
+  {headerLayoutPreset: 'center'},
+);
+
+const FavoritesNavigator = createStackNavigator({
+  FavoritesScreen: {
+    screen: FavoritesScreen,
+    navigationOptions: {
+      header: null,
+    },
+  },
+  Vocabulary: {
+    screen: VocabularyScreen,
+    navigationOptions: {},
+  },
+});
 
 const DrawerNavigator = createDrawerNavigator(
   {
@@ -57,7 +88,7 @@ const DrawerNavigator = createDrawerNavigator(
       },
     },
     VietnameseEnglish: {
-      screen: VietnameseEngLish,
+      screen: VANavigator,
       navigationOptions: {
         title: 'Vietnamese - English',
         drawerIcon: ({tintColor}) => (
@@ -69,7 +100,7 @@ const DrawerNavigator = createDrawerNavigator(
       },
     },
     FavoritesScreen: {
-      screen: Screen4,
+      screen: FavoritesNavigator,
       navigationOptions: {
         title: 'Favorites',
         drawerIcon: ({tintColor}) => (

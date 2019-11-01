@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
 import {openDatabase} from 'react-native-sqlite-storage';
-var db = openDatabase({
-  name: 'anh_viet.db',
-  createFromLocation: '1',
-});
+var db = openDatabase({name: 'aa.db'});
+
 import {
   StyleSheet,
   View,
@@ -14,15 +12,35 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-export default class HomeSceen extends Component {
+export default class FavoritesScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {records: [], id: '', word: '', content: ''};
-    this.setInputState = this.setInputState.bind(this);
     this.navigation = this.props.navigation;
-    const self = this;
+    self = this;
+    db.transaction(function(txn) {
+      txn.executeSql(
+        "SELECT * FROM sqlite_master WHERE type='table' AND name='favoritesword'",
+        [],
+        function(tx, res) {
+          if (res.rows.length === 0) {
+            txn.executeSql(
+              'DROP TABLE IF EXISTS favoritesword',
+              [],
+              (tes, res) => {
+                console.log(res);
+              },
+            );
+            txn.executeSql(
+              'CREATE TABLE IF NOT EXISTS favoritesword(id INTEGER PRIMARY KEY AUTOINCREMENT, word VARCHAR(30), content VARCHAR(1000))',
+              [],
+            );
+          }
+        },
+      );
+    });
     db.transaction(function(tx) {
-      tx.executeSql('SELECT * FROM viet_anh LIMIT 50', [], (tx, results) => {
+      tx.executeSql('SELECT * FROM favoritesword', [], (tx, results) => {
         var temp = [];
         for (let i = 0; i < results.rows.length; i++) {
           temp.push(results.rows.item(i));
@@ -38,16 +56,13 @@ export default class HomeSceen extends Component {
     });
   }
 
-  setInputState(value) {
-    console.log(value);
-
-    this.setState({records: value});
-  }
-
-  addmoreWord = () => {
-    var temp = this.state.records;
+  onDelete(id) {
+    var temp = [];
+    db.transaction(tx => {
+      tx.executeSql('DELETE FROM  favoritesword where id=?', [id]);
+    });
     db.transaction(function(tx) {
-      tx.executeSql('SELECT * FROM viet_anh LIMIT 10000', [], (tx, results) => {
+      tx.executeSql('SELECT * FROM favoritesword', [], (tx, results) => {
         for (let i = 0; i < results.rows.length; i++) {
           temp.push(results.rows.item(i));
         }
@@ -56,33 +71,7 @@ export default class HomeSceen extends Component {
     this.setState({
       records: temp,
     });
-  };
-
-  updateWord = temp => {
-    this.setState({records: temp});
-  };
-
-  searchWord = async keyWord => {
-    var temp = [];
-    await db.transaction(tx => {
-      tx.executeSql(
-        "SELECT * FROM viet_anh WHERE word LIKE '%' || ? || '%'",
-        [keyWord],
-        (tx, results) => {
-          console.log('result', results);
-          for (let i = 0; i < 50; ++i) {
-            temp.push(results.rows.item(i));
-          }
-          this.updateWord(temp);
-        },
-      );
-    });
-  };
-
-  extractContent = string => {
-    const regex = /(<([^>]+)>)/gi;
-    return string.replace(regex, '').replace('"', '');
-  };
+  }
 
   VocabularyView = word => {
     this.props.navigation.navigate('Vocabulary', {word});
@@ -102,25 +91,8 @@ export default class HomeSceen extends Component {
             />
           </TouchableOpacity>
           <View style={styles.title}>
-            <Text style={styles.size25}>VIE - ENG</Text>
+            <Text style={styles.size25}>FAVORITES WORD</Text>
           </View>
-        </View>
-        <View style={styles.search}>
-          <TextInput
-            style={styles.input}
-            underlineColorAndroid="transparent"
-            placeholder="Nhập từ để tra"
-            placeholderTextColor="grey"
-            autoCaptalize="none"
-            onChangeText={textSearch => this.searchWord(textSearch)}
-          />
-          <TouchableOpacity style={styles.alignFlexEnd}>
-            {/* onPress={this.read}> */}
-            <Image
-              style={styles.voiceIcon}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/voice.png')}
-            />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.mt20}>
@@ -128,7 +100,11 @@ export default class HomeSceen extends Component {
             data={this.state.records}
             renderItem={({item}) => {
               return (
-                <TouchableOpacity onPress={() => this.VocabularyView(item)}>
+                <TouchableOpacity
+                  onPress={() => this.VocabularyView(item)}
+                  onLongPress={() => {
+                    this.onDelete(item.id);
+                  }}>
                   <View style={styles.vocavularyView}>
                     <Text style={styles.info}>{item.word}</Text>
                   </View>
@@ -137,14 +113,6 @@ export default class HomeSceen extends Component {
             }}
             keyExtractor={item => item.id.toString()}
           />
-        </View>
-        <View style={styles.addmoreWord}>
-          <TouchableOpacity onPress={() => this.addmoreWord()}>
-            <Image
-              style={styles.plusButton}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/plus.png')}
-            />
-          </TouchableOpacity>
         </View>
       </View>
     );

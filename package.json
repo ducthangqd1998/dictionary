@@ -18,7 +18,8 @@
     "react-native-webview": "^7.4.3",
     "react-navigation": "^4.0.10",
     "react-navigation-drawer": "^2.3.1",
-    "react-navigation-stack": "^1.9.1"
+    "react-navigation-stack": "^1.9.1",
+    "trie-search": "^1.2.11"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

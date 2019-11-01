@@ -17,8 +17,9 @@ import {
 export default class HomeSceen extends Component {
   constructor(props) {
     super(props);
-    this.navigation = this.props.navigation;
     this.state = {records: [], id: '', word: '', content: ''};
+    this.setInputState = this.setInputState.bind(this);
+    this.navigation = this.props.navigation;
     const self = this;
     db.transaction(function(tx) {
       tx.executeSql('SELECT * FROM anh_viet LIMIT 50', [], (tx, results) => {
@@ -26,21 +27,55 @@ export default class HomeSceen extends Component {
         for (let i = 0; i < results.rows.length; i++) {
           temp.push(results.rows.item(i));
         }
-        // console.log('temp1', temp);
         try {
           self.setState({
-            record: temp,
+            records: temp,
           });
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       });
     });
   }
 
-  read = () => {
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM viet_anh', [], (tx, results) => {
-        console.log('results', results);
+  setInputState(value) {
+    console.log(value);
+
+    this.setState({records: value});
+  }
+
+  addmoreWord = () => {
+    var temp = this.state.records;
+    db.transaction(function(tx) {
+      tx.executeSql('SELECT * FROM anh_viet LIMIT 10000', [], (tx, results) => {
+        for (let i = 0; i < results.rows.length; i++) {
+          temp.push(results.rows.item(i));
+        }
       });
+    });
+    this.setState({
+      records: temp,
+    });
+  };
+
+  updateWord = temp => {
+    this.setState({records: temp});
+  };
+
+  searchWord = async keyWord => {
+    var temp = [];
+    await db.transaction(tx => {
+      tx.executeSql(
+        "SELECT * FROM anh_viet WHERE word LIKE '%' || ? || '%'",
+        [keyWord],
+        (tx, results) => {
+          console.log('result', results);
+          for (let i = 0; i < 50; ++i) {
+            temp.push(results.rows.item(i));
+          }
+          this.updateWord(temp);
+        },
+      );
     });
   };
 
@@ -77,6 +112,7 @@ export default class HomeSceen extends Component {
             placeholder="Nhập từ để tra"
             placeholderTextColor="grey"
             autoCaptalize="none"
+            onChangeText={textSearch => this.searchWord(textSearch)}
           />
           <TouchableOpacity style={styles.alignFlexEnd}>
             {/* onPress={this.read}> */}
@@ -89,7 +125,7 @@ export default class HomeSceen extends Component {
 
         <View style={styles.mt20}>
           <FlatList
-            data={this.state.record}
+            data={this.state.records}
             renderItem={({item}) => {
               return (
                 <TouchableOpacity onPress={() => this.VocabularyView(item)}>
@@ -102,6 +138,14 @@ export default class HomeSceen extends Component {
             keyExtractor={item => item.id.toString()}
           />
         </View>
+        <View style={styles.addmoreWord}>
+          <TouchableOpacity onPress={() => this.addmoreWord()}>
+            <Image
+              style={styles.plusButton}
+              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/plus.png')}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -112,6 +156,19 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 20,
   },
+  plusButton: {
+    width: 55,
+    height: 55,
+  },
+  addmoreWord: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    width: '100%',
+    marginRight: '3%',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
   menuIcon: {
     width: 22,
     height: 22,
@@ -120,7 +177,9 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
-  mt20: {marginTop: 20},
+  mt20: {
+    marginTop: 20,
+  },
   alignFlexEnd: {
     alignItems: 'flex-start',
   },
