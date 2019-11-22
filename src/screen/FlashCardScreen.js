@@ -20,11 +20,6 @@ var db = openDatabase({
 export default class FlashCardScreen extends Component {
   constructor(props) {
     super(props);
-
-    Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
-    Voice.onSpeechResults = this.onSpeechResults;
-
     this.state = {
       records: [],
       id: '',
@@ -34,6 +29,11 @@ export default class FlashCardScreen extends Component {
       started: '',
       results: [],
     };
+
+    Voice.onSpeechStart = this.onSpeechStart;
+    Voice.onSpeechRecognized = this.onSpeechRecognized;
+    Voice.onSpeechResults = this.onSpeechResults;
+
     this.setInputState = this.setInputState.bind(this);
     this.navigation = this.props.navigation;
     const self = this;
@@ -56,23 +56,8 @@ export default class FlashCardScreen extends Component {
 
   setInputState(value) {
     console.log(value);
-
     this.setState({records: value});
   }
-
-  addmoreWord = () => {
-    var temp = this.state.records;
-    db.transaction(function(tx) {
-      tx.executeSql('SELECT * FROM anh_viet LIMIT 10000', [], (tx, results) => {
-        for (let i = 0; i < results.rows.length; i++) {
-          temp.push(results.rows.item(i));
-        }
-      });
-    });
-    this.setState({
-      records: temp,
-    });
-  };
 
   updateWord = temp => {
     this.setState({records: temp});
@@ -107,36 +92,45 @@ export default class FlashCardScreen extends Component {
   componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
   }
-  onSpeechStart(e) {
-    console.log('eeeee', e);
+
+  onSpeechStart = e => {
+    console.log('onSpeechStart: ', e);
     this.setState({
       started: '√',
     });
-  }
-  onSpeechRecognized(e) {
-    this.setState({
-      recognized: '√',
-    });
-  }
-  onSpeechResults(e) {
+  };
+
+  onSpeechResults = e => {
+    console.log('onSpeechResults: ', e);
     this.setState({
       results: e.value,
     });
-  }
+  };
 
-  async _startRecognition(e) {
+  _startRecognizing = async () => {
     this.setState({
-      recognized: '',
+      pitch: '',
+      error: '',
       started: '',
       results: [],
+      partialResults: [],
+      end: '',
     });
-    console.log('ok');
+
     try {
       await Voice.start('en-US');
     } catch (e) {
       console.error(e);
     }
-  }
+  };
+
+  _stopRecognizing = async () => {
+    try {
+      await Voice.stop();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   render() {
     return (
@@ -177,18 +171,21 @@ export default class FlashCardScreen extends Component {
                 <View style={styles.flexRow}>
                   <TouchableOpacity
                     style={styles.styleCenter}
-                    onPress={this._startRecognition.bind(this)}>
+                    onPress={this._startRecognizing}>
                     <Image
                       style={styles.plusButton}
                       source={require('../../img/microphone.png')}
                     />
                   </TouchableOpacity>
-                  <View style={styles.styleCenter}>
+                  <TouchableOpacity style={styles.styleCenter}>
                     <Image
                       style={styles.plusButton}
                       source={require('../../img/volume1.png')}
                     />
-                  </View>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.flexRow1}>
+                  <Text style={styles.fontsize25}>{this.state.results[0]}</Text>
                 </View>
               </View>
             );
@@ -250,7 +247,14 @@ const styles = StyleSheet.create({
   },
   flexRow: {
     flex: 1,
-    paddingTop: 50,
+    marginTop: 20,
+    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flexRow1: {
+    flex: 1,
     width: '80%',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -267,7 +271,7 @@ const styles = StyleSheet.create({
   },
   flex1: {
     justifyContent: 'center',
-    flex: 2,
+    flex: 3,
     borderWidth: 0.5,
     padding: 20,
     marginTop: 19,
