@@ -98,7 +98,7 @@ export default class HomeSceen extends Component {
             {/* onPress={this.read}> */}
             <Image
               style={styles.menuIcon}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/menu.png')}
+              source={require('../../img/menu.png')}
             />
           </TouchableOpacity>
           <View style={styles.title}>
@@ -118,7 +118,7 @@ export default class HomeSceen extends Component {
             {/* onPress={this.read}> */}
             <Image
               style={styles.voiceIcon}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/voice.png')}
+              source={require('../../img/voice.png')}
             />
           </TouchableOpacity>
         </View>
@@ -142,7 +142,7 @@ export default class HomeSceen extends Component {
           <TouchableOpacity onPress={() => this.addmoreWord()}>
             <Image
               style={styles.plusButton}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/plus.png')}
+              source={require('../../img/plus.png')}
             />
           </TouchableOpacity>
         </View>

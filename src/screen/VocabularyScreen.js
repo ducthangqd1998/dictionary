@@ -67,7 +67,7 @@ export default class VocabularyScreen extends Component {
           <TouchableOpacity onPress={() => this.addWord()}>
             <Image
               style={styles.heartIcon}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/heart.png')}
+              source={require('../../img/heart.png')}
             />
           </TouchableOpacity>
         </View>

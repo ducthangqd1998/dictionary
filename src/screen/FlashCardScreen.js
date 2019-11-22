@@ -1,23 +1,39 @@
 import React, {Component} from 'react';
 import {openDatabase} from 'react-native-sqlite-storage';
-var db = openDatabase({
-  name: 'anh_viet.db',
-  createFromLocation: '1',
-});
+import Voice from 'react-native-voice';
+
 import {
   StyleSheet,
   View,
   Text,
   FlatList,
-  TextInput,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 
-export default class HomeSceen extends Component {
+var db = openDatabase({
+  name: 'anh_viet.db',
+  createFromLocation: '1',
+});
+
+export default class FlashCardScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {records: [], id: '', word: '', content: ''};
+
+    Voice.onSpeechStart = this.onSpeechStart;
+    Voice.onSpeechRecognized = this.onSpeechRecognized;
+    Voice.onSpeechResults = this.onSpeechResults;
+
+    this.state = {
+      records: [],
+      id: '',
+      word: '',
+      content: '',
+      recognized: '',
+      started: '',
+      results: [],
+    };
     this.setInputState = this.setInputState.bind(this);
     this.navigation = this.props.navigation;
     const self = this;
@@ -80,13 +96,47 @@ export default class HomeSceen extends Component {
   };
 
   extractContent = string => {
-    const regex = new RegExp(/<span .*?li>(.*?)<\/li><\/ul>/gi);
+    const regex = new RegExp(/<li>([^<]*)<\/li>/gi);
     return regex.exec(string)[1];
   };
 
   VocabularyView = word => {
     this.props.navigation.navigate('Vocabulary', {word});
   };
+
+  componentWillUnmount() {
+    Voice.destroy().then(Voice.removeAllListeners);
+  }
+  onSpeechStart(e) {
+    console.log('eeeee', e);
+    this.setState({
+      started: '√',
+    });
+  }
+  onSpeechRecognized(e) {
+    this.setState({
+      recognized: '√',
+    });
+  }
+  onSpeechResults(e) {
+    this.setState({
+      results: e.value,
+    });
+  }
+
+  async _startRecognition(e) {
+    this.setState({
+      recognized: '',
+      started: '',
+      results: [],
+    });
+    console.log('ok');
+    try {
+      await Voice.start('en-US');
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   render() {
     return (
@@ -102,50 +152,49 @@ export default class HomeSceen extends Component {
             />
           </TouchableOpacity>
           <View style={styles.title}>
-            <Text style={styles.size25}>ENG - VIE</Text>
+            <Text style={styles.fontsize25}>FLASH CARD</Text>
           </View>
         </View>
-        <View style={styles.search}>
-          <TextInput
-            style={styles.input}
-            underlineColorAndroid="transparent"
-            placeholder="Nhập từ để tra"
-            placeholderTextColor="grey"
-            autoCaptalize="none"
-            onChangeText={textSearch => this.searchWord(textSearch)}
-          />
-          <TouchableOpacity style={styles.alignFlexEnd}>
-            {/* onPress={this.read}> */}
-            <Image
-              style={styles.voiceIcon}
-              source={require('../../img/voice.png')}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.mt20}>
-          <FlatList
-            data={this.state.records}
-            renderItem={({item}) => {
-              return (
-                <TouchableOpacity onPress={() => this.VocabularyView(item)}>
-                  <View style={styles.vocavularyView}>
-                    <Text style={styles.info}>{item.word}</Text>
+        <FlatList
+          data={this.state.records}
+          horizontal={true}
+          pagingEnabled={true}
+          renderItem={({item}) => {
+            return (
+              <View style={styles.flashcardView}>
+                <View style={styles.flex1}>
+                  <Image
+                    style={{width: 130, height: 130}}
+                    source={require('../../img/bee.png')}
+                  />
+                  <Text style={styles.size25}>{item.word}</Text>
+                  <View>
+                    <Text style={styles.size25}>
+                      {this.extractContent(item.content)}
+                    </Text>
                   </View>
-                </TouchableOpacity>
-              );
-            }}
-            keyExtractor={item => item.id.toString()}
-          />
-        </View>
-        <View style={styles.addmoreWord}>
-          <TouchableOpacity onPress={() => this.addmoreWord()}>
-            <Image
-              style={styles.plusButton}
-              source={require('../../img/plus.png')}
-            />
-          </TouchableOpacity>
-        </View>
+                </View>
+                <View style={styles.flexRow}>
+                  <TouchableOpacity
+                    style={styles.styleCenter}
+                    onPress={this._startRecognition.bind(this)}>
+                    <Image
+                      style={styles.plusButton}
+                      source={require('../../img/microphone.png')}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.styleCenter}>
+                    <Image
+                      style={styles.plusButton}
+                      source={require('../../img/volume1.png')}
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          }}
+          keyExtractor={item => item.id.toString()}
+        />
       </View>
     );
   }
@@ -154,19 +203,19 @@ export default class HomeSceen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 20,
   },
   plusButton: {
-    width: 55,
-    height: 55,
+    width: 65,
+    height: 65,
   },
   addmoreWord: {
+    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
     width: '100%',
     marginRight: '3%',
     position: 'absolute',
-    bottom: 0,
+    bottom: 20,
     right: 0,
   },
   menuIcon: {
@@ -180,9 +229,6 @@ const styles = StyleSheet.create({
   mt20: {
     marginTop: 20,
   },
-  alignFlexEnd: {
-    alignItems: 'flex-start',
-  },
   title: {
     alignItems: 'center',
     width: '90%',
@@ -190,16 +236,25 @@ const styles = StyleSheet.create({
   },
   size25: {
     fontSize: 25,
+    marginTop: 20,
+  },
+  fontsize25: {
+    fontSize: 25,
   },
   navigationBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 15,
     justifyContent: 'flex-start',
+    borderBottomWidth: 0.5,
   },
-  search: {
+  flexRow: {
+    flex: 1,
+    paddingTop: 50,
+    width: '80%',
     flexDirection: 'row',
-    marginTop: 10,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   input: {
     justifyContent: 'center',
@@ -210,23 +265,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.4,
     width: '87%',
   },
+  flex1: {
+    justifyContent: 'center',
+    flex: 2,
+    borderWidth: 0.5,
+    padding: 20,
+    marginTop: 19,
+    width: '90%',
+    alignItems: 'center',
+  },
+  styleCenter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   info: {
     fontSize: 16,
   },
-  vocavularyView: {
-    marginTop: 20,
-    height: 60,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 2,
-    shadowRadius: 6,
-    elevation: 1,
-    borderWidth: 0.1,
-    borderRadius: 6,
-    backgroundColor: '#ffffff',
-    paddingLeft: 20,
-    fontSize: 18,
+  flashcardView: {
+    flex: 1,
+    width: Dimensions.get('window').width,
+    textAlign: 'center',
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
 });

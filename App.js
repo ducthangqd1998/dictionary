@@ -8,6 +8,7 @@ import HomeScreen from './src/screen/HomeScreen';
 import VocabularyScreen from './src/screen/VocabularyScreen';
 import FavoritesScreen from './src/screen/FavoritesScreen';
 import VietNameseEngLishScreen from './src/screen/VietnameseEngLishScreen';
+import FlashCardScreen from './src/screen/FlashCardScreen';
 import {
   VietnameseEngLish,
   Screen3,
@@ -107,6 +108,18 @@ const DrawerNavigator = createDrawerNavigator(
           <Image
             style={{width: 25, height: 25}}
             source={require('./img/favorites.png')}
+          />
+        ),
+      },
+    },
+    FlashCardScreen: {
+      screen: FlashCardScreen,
+      navigationOptions: {
+        title: 'Flash Card',
+        drawerIcon: ({tintColor}) => (
+          <Image
+            style={{width: 30, height: 30}}
+            source={require('./img/flashcard.png')}
           />
         ),
       },

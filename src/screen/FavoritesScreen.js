@@ -87,7 +87,7 @@ export default class FavoritesScreen extends Component {
             {/* onPress={this.read}> */}
             <Image
               style={styles.menuIcon}
-              source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/menu.png')}
+              source={require('../../img/menu.png')}
             />
           </TouchableOpacity>
           <View style={styles.title}>

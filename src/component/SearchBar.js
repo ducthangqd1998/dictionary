@@ -19,7 +19,7 @@ export default class SearchBar extends Component {
           {/* onPress={this.read}> */}
           <Image
             style={styles.menuIcon}
-            source={require('/home/maithang/Duc Thang/DUT/React Native/test/img/menu.png')}
+            source={require('../../img/menu.png')}
           />
         </TouchableOpacity>
         <TextInput
