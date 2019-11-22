@@ -66,11 +66,11 @@ export default class HomeSceen extends Component {
     var temp = [];
     await db.transaction(tx => {
       tx.executeSql(
-        "SELECT * FROM anh_viet WHERE word LIKE '%' || ? || '%'",
+        "SELECT * FROM anh_viet WHERE word LIKE '%' || ? || '%' LIMIT 20",
         [keyWord],
         (tx, results) => {
           console.log('result', results);
-          for (let i = 0; i < 50; ++i) {
+          for (let i = 0; i < results.rows.length; ++i) {
             temp.push(results.rows.item(i));
           }
           this.updateWord(temp);
